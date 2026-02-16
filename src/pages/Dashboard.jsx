@@ -6,8 +6,8 @@ function Dashboard() {
   const { users, orders, products, settings, updateShippingCost } = useShop();
   const [shipping, setShipping] = useState(settings.shippingCost);
 
-  const handleSaveShipping = () => {
-    updateShippingCost(shipping);
+  const handleSaveShipping = async () => {
+    await updateShippingCost(shipping);
     toast.success("Shipping cost updated!");
   };
 

@@ -26,17 +26,20 @@ export default function ManageStaff() {
     );
   }
 
-  const handleToggleStaff = (user) => {
+  const handleToggleStaff = async (user) => {
     const newRole = user.role === "staff" ? "user" : "staff";
-    updateUserRole(user.id, newRole);
-    toast.success(`${user.name} is now a ${newRole}`);
+    await updateUserRole(user.id, newRole);
   };
 
-  const handlePermissionToggle = (userId, currentPermissions, permissionId) => {
+  const handlePermissionToggle = async (
+    userId,
+    currentPermissions,
+    permissionId,
+  ) => {
     const newPermissions = currentPermissions.includes(permissionId)
       ? currentPermissions.filter((id) => id !== permissionId)
       : [...currentPermissions, permissionId];
-    updateUserPermissions(userId, newPermissions);
+    await updateUserPermissions(userId, newPermissions);
   };
 
   return (

@@ -56,7 +56,7 @@ function AddPro() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting form...", formData);
 
@@ -72,7 +72,7 @@ function AddPro() {
         discount: parseFloat(formData.discount) || 0,
         stock: formData.stock ? parseInt(formData.stock) : 0, // Default to 0 if not provided
       };
-      addProduct(productData);
+      await addProduct(productData);
       toast.success("Product Added Successfully!");
 
       // Reset Form

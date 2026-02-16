@@ -19,7 +19,7 @@ function Signup() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -28,7 +28,7 @@ function Signup() {
       return;
     }
 
-    const result = registerUser(formData);
+    const result = await registerUser(formData);
     if (result.success) {
       toast.success(t("signup.success"));
       navigate("/");

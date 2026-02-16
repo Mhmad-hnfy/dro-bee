@@ -68,7 +68,7 @@ function Checkout() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.paymentMethod === "card") {
@@ -96,7 +96,7 @@ function Checkout() {
 
     setIsProcessing(true); // Guard against immediate redirect
     // Create Order
-    const newOrder = createOrder(formData, appliedPromo);
+    const newOrder = await createOrder(formData, appliedPromo);
 
     toast.success("Order Placed Successfully!");
 

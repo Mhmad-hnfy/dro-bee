@@ -7,7 +7,7 @@ function ManagePromoCodes() {
   const [newCode, setNewCode] = useState("");
   const [discount, setDiscount] = useState("");
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!newCode.trim() || !discount) {
       toast.error("Please fill in both fields");
@@ -17,16 +17,14 @@ function ManagePromoCodes() {
       toast.error("Promo code already exists");
       return;
     }
-    addPromoCode(newCode.trim(), discount);
+    await addPromoCode(newCode.trim(), discount);
     setNewCode("");
     setDiscount("");
-    toast.success("Promo code added successfully");
   };
 
-  const handleDelete = (code) => {
+  const handleDelete = async (code) => {
     if (window.confirm(`Are you sure you want to delete "${code}"?`)) {
-      deletePromoCode(code);
-      toast.success("Promo code deleted");
+      await deletePromoCode(code);
     }
   };
 

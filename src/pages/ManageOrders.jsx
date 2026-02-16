@@ -42,8 +42,8 @@ function ManageOrders() {
                     </span>
                     <select
                       value={order.status}
-                      onChange={(e) =>
-                        updateOrderStatus(order.id, e.target.value)
+                      onChange={async (e) =>
+                        await updateOrderStatus(order.id, e.target.value)
                       }
                       className="border rounded text-sm p-1"
                     >
@@ -54,38 +54,45 @@ function ManageOrders() {
                     </select>
 
                     <button
-                      onClick={() => updateOrderStatus(order.id, "Cancelled")}
+                      onClick={async () =>
+                        await updateOrderStatus(order.id, "Cancelled")
+                      }
                       className="text-red-500 hover:text-red-700 text-sm"
                     >
                       Cancel Order
                     </button>
 
                     <button
-                      onClick={() => updateOrderStatus(order.id, "Delivered")}
+                      onClick={async () =>
+                        await updateOrderStatus(order.id, "Delivered")
+                      }
                       className="text-green-500 hover:text-green-700 text-sm"
                     >
                       Deliver Order
                     </button>
 
                     <button
-                      onClick={() => updateOrderStatus(order.id, "Shipped")}
+                      onClick={async () =>
+                        await updateOrderStatus(order.id, "Shipped")
+                      }
                       className="text-blue-500 hover:text-blue-700 text-sm"
                     >
                       Ship Order
                     </button>
 
                     <button
-                      onClick={() => updateOrderStatus(order.id, "Pending")}
+                      onClick={async () =>
+                        await updateOrderStatus(order.id, "Pending")
+                      }
                       className="text-yellow-500 hover:text-yellow-700 text-sm"
                     >
                       Pending Order
                     </button>
 
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (window.confirm("Delete this order?")) {
-                          deleteOrder(order.id);
-                          toast.success("Order deleted");
+                          await deleteOrder(order.id);
                         }
                       }}
                       className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors font-medium text-xs border border-red-200"

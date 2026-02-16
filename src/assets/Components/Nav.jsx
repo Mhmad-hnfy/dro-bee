@@ -1,6 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useShop } from "../../context/ShopContext";
+import {
+  Menu,
+  X,
+  ShoppingCart,
+  Search,
+  Globe,
+  LogOut,
+  User,
+  LayoutDashboard,
+} from "lucide-react";
 
 const Nav = () => {
   const [open, setOpen] = React.useState(false);
@@ -11,7 +21,7 @@ const Nav = () => {
       <div className="w-full py-2 font-medium text-black text-center bg-yellow-400">
         <p>{t("nav.specialDeal")}</p>
       </div>
-      <nav className=" top-0 z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-25 py-1 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all shadow-sm">
+      <nav className="relative top-0 z-50 flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-25 py-1 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all shadow-sm">
         <Link to="/">
           <img width="130" height="130" src="/10.png" alt="Logo" />
         </Link>
@@ -151,26 +161,20 @@ const Nav = () => {
         </div>
 
         <button
-          onClick={() => (open ? setOpen(false) : setOpen(true))}
-          aria-label="Menu"
-          className="sm:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle Menu"
+          className="sm:hidden z-[60] p-2"
         >
-          <svg
-            width="21"
-            height="15"
-            viewBox="0 0 21 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect width="21" height="1.5" rx=".75" fill="black" />
-            <rect x="8" y="6" width="13" height="1.5" rx=".75" fill="black" />
-            <rect x="6" y="13" width="15" height="1.5" rx=".75" fill="black" />
-          </svg>
+          {open ? (
+            <X size={24} className="text-black" />
+          ) : (
+            <Menu size={24} className="text-black" />
+          )}
         </button>
 
         {/* Mobile Menu */}
         <div
-          className={`${open ? "flex" : "hidden"} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden z-50`}
+          className={`${open ? "flex" : "hidden"} absolute top-full left-0 w-full bg-white shadow-xl py-6 flex-col items-start gap-4 px-6 text-base md:hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300`}
         >
           <Link
             to="/"

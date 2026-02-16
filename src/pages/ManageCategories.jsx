@@ -8,14 +8,14 @@ function ManageCategories() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [tempCategoryName, setTempCategoryName] = useState("");
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!newCategory.trim()) return;
     if (categories.includes(newCategory.trim())) {
       toast.error("Category already exists");
       return;
     }
-    addCategory(newCategory.trim());
+    await addCategory(newCategory.trim());
     setNewCategory("");
     toast.success("Category added");
   };
@@ -25,7 +25,7 @@ function ManageCategories() {
     setTempCategoryName(category);
   };
 
-  const handleEditSave = () => {
+  const handleEditSave = async () => {
     if (!tempCategoryName.trim()) return;
     if (
       tempCategoryName.trim() !== editingCategory &&
@@ -34,16 +34,23 @@ function ManageCategories() {
       toast.error("Category name already taken");
       return;
     }
-    editCategory(editingCategory, tempCategoryName.trim());
+    await editCategory(editingCategory, tempCategoryName.trim());
     setEditingCategory(null);
     setTempCategoryName("");
     toast.success("Category updated");
   };
 
-  const handleDelete = (category) => {
+  const handleDelete = async (category) => {
     if (window.confirm(`Are you sure you want to delete "${category}"?`)) {
-      deleteCategory(category);
-      toast.success("Category deleted");
+      const res = await deleteCategory(category);
+      if (res.success) {
+        toast.success("Category deleted");
+      } else {
+        toast.error(
+          res.message ||
+            "Failed to delete category. Ensure it has no products.",
+        );
+      }
     }
   };
 

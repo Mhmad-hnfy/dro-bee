@@ -15,11 +15,11 @@ function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    const result = loginUser(formData.email, formData.password);
+    const result = await loginUser(formData.email, formData.password);
     if (result.success) {
       navigate("/"); // Redirect to home on success
     } else {

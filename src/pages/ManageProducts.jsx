@@ -6,15 +6,14 @@ function ManageProducts() {
   const { products, deleteProduct, editProduct, categories } = useShop();
   const [editingProduct, setEditingProduct] = useState(null);
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editProduct) {
       toast.error("Edit function not found");
       return;
     }
-    editProduct(editingProduct);
+    await editProduct(editingProduct);
     setEditingProduct(null);
-    toast.success("Product Updated");
   };
 
   const handleEditImage = (e) => {
@@ -262,10 +261,9 @@ function ManageProducts() {
                     Edit
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (window.confirm("Delete this product?")) {
-                        deleteProduct(product.id);
-                        toast.success("Product deleted");
+                        await deleteProduct(product.id);
                       }
                     }}
                     className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors font-medium text-xs border border-red-200"
