@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 function Checkout() {
-  const { cart, settings, createOrder, getDiscountedPrice, promoCodes } =
+  const { cart, settings, createOrder, getDiscountedPrice, promoCodes, t } =
     useShop();
   const navigate = useNavigate();
 
