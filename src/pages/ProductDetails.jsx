@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { toast } from "sonner";
 import Loading from "../assets/Components/Loading";
 
 function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { products, addToCart, trackProductView, getDiscountedPrice, t } =
     useShop();
   const [quantity, setQuantity] = useState(1);
@@ -181,7 +182,7 @@ function ProductDetails() {
               </div>
             )}
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => {
                   addToCart(product, quantity);
@@ -191,6 +192,16 @@ function ProductDetails() {
                 className="flex-1 bg-yellow-500 text-black py-4 rounded-full font-bold hover:bg-yellow-400 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isOutOfStock ? t("common.outOfStock") : t("common.addToCart")}
+              </button>
+              <button
+                onClick={() => {
+                  addToCart(product, quantity);
+                  navigate("/checkout");
+                }}
+                disabled={isOutOfStock}
+                className="flex-1 bg-black text-white py-4 rounded-full font-bold hover:bg-gray-800 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {t("common.buyNow")}
               </button>
             </div>
 

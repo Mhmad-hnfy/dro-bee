@@ -111,6 +111,7 @@ export const translations = {
     },
     common: {
       addToCart: "Add to Cart",
+      buyNow: "Buy Now",
       viewProduct: "View Product",
       price: "Price",
       stock: "Stock",
@@ -279,6 +280,7 @@ export const translations = {
     },
     common: {
       addToCart: "إضافة للسلة",
+      buyNow: "شراء الآن",
       viewProduct: "عرض المنتج",
       price: "السعر",
       stock: "المخزون",
