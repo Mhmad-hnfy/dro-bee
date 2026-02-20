@@ -170,7 +170,10 @@ function OrderReceipt() {
               {t("receipt.subtotal")}
             </span>
             <span className="font-bold text-gray-600">
-              EGP {(order.total - order.shippingCost).toFixed(2)}
+              EGP{" "}
+              {(
+                order.total - (order.shippingCost || order.shipping_cost || 0)
+              ).toFixed(2)}
             </span>
           </div>
           <div className="w-full max-w-[240px] flex justify-between items-center text-sm">
@@ -178,7 +181,10 @@ function OrderReceipt() {
               {t("receipt.shipping")}
             </span>
             <span className="font-bold text-gray-600">
-              EGP {parseFloat(order.shippingCost).toFixed(2)}
+              EGP{" "}
+              {parseFloat(
+                order.shippingCost || order.shipping_cost || 0,
+              ).toFixed(2)}
             </span>
           </div>
           <div className="w-full max-w-[240px] flex justify-between items-center bg-yellow-400 p-4 rounded-xl mt-2 shadow-lg shadow-yellow-100">

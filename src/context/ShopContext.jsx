@@ -73,6 +73,7 @@ export const ShopProvider = ({ children }) => {
               postalCode: o.customer_postal_code,
               notes: o.customer_notes,
               paymentMethod: o.payment_method || "cod", // Add default if missing
+              shippingCost: o.shipping_cost,
             },
             items: (o.order_items || []).map((i) => ({
               ...i,
@@ -356,6 +357,7 @@ export const ShopProvider = ({ children }) => {
           postalCode: o.customer_postal_code,
           notes: o.customer_notes,
           paymentMethod: o.payment_method || "cod",
+          shippingCost: o.shipping_cost,
         },
         items: cart.map((i) => ({
           ...i,
