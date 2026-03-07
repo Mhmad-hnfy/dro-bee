@@ -24,6 +24,7 @@ export const ShopProvider = ({ children }) => {
   const [categories, setCategories] = useState(["Men", "Accessories", "Other"]);
   const [promoCodes, setPromoCodes] = useState([]);
   const [settings, setSettings] = useState({ shippingCost: 10 });
+  const [messages, setMessages] = useState([]); // <-- Added messages state
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem("language") || "en";
   });
@@ -34,7 +35,7 @@ export const ShopProvider = ({ children }) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [prodRes, catRes, promoRes, orderRes, userRes, shipRes] =
+        const [prodRes, catRes, promoRes, orderRes, userRes, shipRes, msgRes] =
           await Promise.all([
             supabase.getAllProducts(),
             supabase.getAllCategories(),
@@ -42,6 +43,7 @@ export const ShopProvider = ({ children }) => {
             supabase.getAllOrders(),
             supabase.getAllUsers(),
             supabase.getSetting("shipping_cost"),
+            supabase.getAllMessages(), // <-- Fetch messages
           ]);
 
         if (prodRes.success)
@@ -87,6 +89,7 @@ export const ShopProvider = ({ children }) => {
         if (userRes.success) setUsers(userRes.data);
         if (shipRes.success && shipRes.value)
           setSettings({ shippingCost: parseFloat(shipRes.value) });
+        if (msgRes.success) setMessages(msgRes.data); // <-- Set messages data
       } catch (error) {
         console.error("Error fetching data from Supabase:", error);
       } finally {
@@ -490,6 +493,34 @@ export const ShopProvider = ({ children }) => {
   const toggleLanguage = () =>
     setLanguage((prev) => (prev === "en" ? "ar" : "en"));
 
+  // Contact Message Action Helpers
+  const submitContactMessage = async (messageData) => {
+    const res = await supabase.submitMessage(messageData);
+    if (res.success) {
+      toast.success(t("common.messageSent") || "Message sent successfully!");
+    } else {
+      toast.error(t("common.messageError") || "Failed to send message.");
+    }
+    return res;
+  };
+
+  const markMessageAsRead = async (messageId) => {
+    const res = await supabase.updateMessageStatus(messageId, true);
+    if (res.success) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageId ? { ...m, read: true } : m)),
+      );
+    }
+  };
+
+  const deleteContactMessage = async (messageId) => {
+    const res = await supabase.deleteMessage(messageId);
+    if (res.success) {
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      toast.success("Message deleted");
+    }
+  };
+
   return (
     <ShopContext.Provider
       value={{
@@ -501,6 +532,7 @@ export const ShopProvider = ({ children }) => {
         settings,
         categories,
         promoCodes,
+        messages, // <-- Exported messages array
         isLoading,
         registerUser,
         loginUser,
@@ -526,6 +558,9 @@ export const ShopProvider = ({ children }) => {
         updateUserPermissions,
         removeUser,
         updateShippingCost,
+        submitContactMessage, // <-- Export message functions
+        markMessageAsRead,
+        deleteContactMessage,
         language,
         t,
         toggleLanguage,

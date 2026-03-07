@@ -22,7 +22,7 @@ export const translations = {
       explore: "Explore our latest",
     },
     hero: {
-      title1: "ELEVATE YOUR",
+      title1: "DROO BEE",
       title2: "DIGITAL STYLE",
       subtitle:
         "Discover the ultimate collection of premium gadgets and accessories designed for the modern creator. Bold technology meets refined aesthetics.",
@@ -134,6 +134,11 @@ export const translations = {
       fetching: "Fetching product details...",
       productNotFound: "Product not found.",
       showingItems: "Showing all premium items in",
+      messageSent: "Message sent successfully!",
+      messageError: "Failed to send message. Please check the database setup.",
+      contactUs: "Contact Us",
+      contactText:
+        "We'd love to hear from you. Please fill out this form or use our contact information below.",
     },
     search: {
       resultsFor: "Search Results for",
@@ -303,6 +308,11 @@ export const translations = {
       fetching: "جاري جلب تفاصيل المنتج...",
       productNotFound: "المنتج غير موجود.",
       showingItems: "عرض جميع الأصناف المميزة في",
+      messageSent: "تم إرسال الرسالة بنجاح!",
+      messageError: "فشل إرسال الرسالة. الرجاء التأكد من إعداد قاعدة البيانات.",
+      contactUs: "تواصل معنا",
+      contactText:
+        "سعداء بتواصلك معنا. يرجى ملء هذا النموذج أو استخدام معلومات الاتصال أدناه.",
     },
     search: {
       resultsFor: "نتائج البحث عن",

@@ -612,3 +612,88 @@ export const clearCart = async (userId) => {
     return { success: false, message: error.message };
   }
 };
+
+// ==================== الرسائل (تواصل معنا) ====================
+
+/**
+ * إرسال رسالة تواصل جديدة
+ */
+export const submitMessage = async (messageData) => {
+  try {
+    const { data, error } = await supabase
+      .from("messages")
+      .insert([
+        {
+          name: messageData.name,
+          email: messageData.email,
+          phone: messageData.phone,
+          message: messageData.message,
+          read: false,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error submitting message:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
+ * الحصول على جميع الرسائل (للأدمن)
+ */
+export const getAllMessages = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return { success: false, data: [] };
+  }
+};
+
+/**
+ * تغيير حالة الرسالة (مقروءة/غير مقروءة)
+ */
+export const updateMessageStatus = async (messageId, isRead) => {
+  try {
+    const { data, error } = await supabase
+      .from("messages")
+      .update({ read: isRead })
+      .eq("id", messageId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error updating message status:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
+ * حذف رسالة تواصل
+ */
+export const deleteMessage = async (messageId) => {
+  try {
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", messageId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting message:", error);
+    return { success: false, message: error.message };
+  }
+};

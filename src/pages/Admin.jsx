@@ -10,11 +10,12 @@ import ManageNotifications from "./ManageNotifications";
 import ManageStaff from "./ManageStaff";
 import Analytics from "./Analytics";
 import ManagePromoCodes from "./ManagePromoCodes";
+import ManageMessages from "./ManageMessages";
 import { Route, Routes } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 
 function Admin() {
-  const { currentUser, orders, users } = useShop();
+  const { currentUser, orders, users, messages } = useShop();
 
   // Notification logic: Pending orders + Users from last 24h
   const pendingOrdersCount = orders.filter(
@@ -25,6 +26,7 @@ function Admin() {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     return signupDate > oneDayAgo;
   }).length;
+  const unreadMessagesCount = messages?.filter((m) => !m.read).length || 0;
 
   const totalNotifications = pendingOrdersCount + recentUsersCount;
 
@@ -35,19 +37,10 @@ function Admin() {
 
   return (
     <>
-      {/* <div className='flex justify-center items -center min-h-[100vh] bg-amber-200 w-100' >
-        <div>
-        <h1 className='text-4xl font-bold text-gray-700'>Admin Page</h1>
-
-        </div>
-        <div className='flex justify-center  mt-5'>
-          <Link to="/">الرئيسية</Link>
-        </div>
-       </div> */}
       <>
         {/* component */}
         <div className="flex flex-wrap bg-gray-100 w-full h-screen">
-          <div className="w-3/12 bg-white rounded p-3 shadow-lg">
+          <div className="w-3/12 bg-white rounded p-3 shadow-lg overflow-y-auto">
             <div className="flex items-center space-x-4 p-2 mb-5">
               <img
                 className="h-20 rounded-full"
@@ -163,6 +156,42 @@ function Admin() {
                   </Link>
                 </li>
               )}
+
+              {/* Messages Link Added */}
+              {hasPermission("notifications") && (
+                <li>
+                  <Link
+                    to="/admin/manage-messages"
+                    className="flex items-center justify-between text-gray-700 p-2 rounded-md font-medium hover:bg-gray-200 focus:bg-gray-200 focus:shadow-outline"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <span className="text-gray-600">
+                        <svg
+                          className="h-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                          />
+                        </svg>
+                      </span>
+                      <span>Messages</span>
+                    </div>
+                    {unreadMessagesCount > 0 && (
+                      <span className="bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                        {unreadMessagesCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              )}
+
               {hasPermission("users") && (
                 <li>
                   <Link
@@ -379,7 +408,7 @@ function Admin() {
               </li>
             </ul>
           </div>
-          <div className="w-9/12">
+          <div className="w-9/12 overflow-y-auto">
             <div className="p-4 text-gray-500">
               <Routes>
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -388,6 +417,7 @@ function Admin() {
                   path="/manage-notifications"
                   element={<ManageNotifications />}
                 />
+                <Route path="/manage-messages" element={<ManageMessages />} />
                 <Route path="/add-product" element={<AddPro />} />
                 <Route path="/manage-products" element={<ManageProducts />} />
                 <Route

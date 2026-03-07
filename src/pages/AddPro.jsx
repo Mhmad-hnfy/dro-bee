@@ -83,7 +83,6 @@ function AddPro() {
         description: "",
         price: "",
         stock: "",
-        stock: "",
         category: categories.length > 0 ? categories[0] : "",
         discount: "",
       });

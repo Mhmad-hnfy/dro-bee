@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import ProductDetails from "./pages/ProductDetails";
 import SearchPage from "./pages/SearchPage";
 import CategoryPage from "./pages/CategoryPage";
+import ContactUs from "./pages/ContactUs";
 
 import { Toaster } from "sonner";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/receipt" element={<OrderReceipt />} />
+          <Route path="/contact" element={<ContactUs />} />
 
           {/* User Profile - Protected */}
           <Route

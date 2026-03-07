@@ -43,6 +43,12 @@ const Nav = () => {
           >
             {t("nav.products")}
           </Link>
+          <Link
+            to="/contact"
+            className="hover:text-yellow-600 transition-colors"
+          >
+            {t("common.contactUs") || "تواصل معنا"}
+          </Link>
 
           <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
             <input
@@ -196,6 +202,13 @@ const Nav = () => {
             onClick={() => setOpen(false)}
           >
             {t("nav.products")}
+          </Link>
+          <Link
+            to="/contact"
+            className="block py-2 hover:text-yellow-600"
+            onClick={() => setOpen(false)}
+          >
+            {t("nav.contactUs") || "تواصل معنا"}
           </Link>
           <Link
             to="/cart"

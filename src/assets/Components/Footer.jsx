@@ -46,8 +46,10 @@ export default function Footer() {
         </p>
         <div className="flex items-center gap-4 mt-5">
           <a
-            href="#"
+            href="https://www.facebook.com/share/18a3SqtQ7j/"
             className="hover:-translate-y-0.5 transition-all duration-300"
+            target="_blank"
+            rel="noreferrer"
           >
             <svg
               width="24"
@@ -67,8 +69,10 @@ export default function Footer() {
             </svg>
           </a>
           <a
-            href="#"
+            href="https://www.instagram.com/drobeegroup?igsh=MXg4eGp2MzA2dTh4Mw=="
             className="hover:-translate-y-0.5 transition-all duration-300"
+            target="_blank"
+            rel="noreferrer"
           >
             <svg
               width="24"
@@ -95,52 +99,34 @@ export default function Footer() {
               />
             </svg>
           </a>
-          {/* <a
-            href="#"
-            className="hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6M6 9H2v12h4zM4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4"
-                stroke="black"
-                strokeOpacity="0.8"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a> */}
-          {/* <a
-            href="#"
-            className="hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2"
-                stroke="black"
-                strokeOpacity="0.8"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a> */}
           <a
-            href="https://wa.me/+201016629731"
+            href="https://www.tiktok.com/@drobeegroub?_r=1&_t=ZS-94Uo7crxOTs"
             className="hover:-translate-y-0.5 transition-all duration-300"
             target="_blank"
+            rel="noreferrer"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5v3a8 8 0 0 1-5-1.5z"
+                stroke="black"
+                strokeOpacity="0.8"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
+          <a
+            href="https://wa.me/+201080826008"
+            className="hover:-translate-y-0.5 transition-all duration-300"
+            target="_blank"
+            rel="noreferrer"
           >
             <svg
               width="24"

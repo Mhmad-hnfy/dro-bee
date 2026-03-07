@@ -66,7 +66,7 @@ export default function Accessories() {
       <div data-aos="fade-up" data-aos-duration="3000">
         <div className="max-w-6xl mx-auto pt-8 pb-25">
           <p className="text-3xl font-medium text-slate-800 text-right mb-2 font-poppins pr-18 pb-8">
-            {t("nav.accessories")}
+              {t("nav.accessories")}
           </p>
           <section className="flex flex-wrap items-center justify-center gap-6">
             {accessoriesData.map((item) => (
