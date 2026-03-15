@@ -129,6 +129,7 @@ export const addProduct = async (product) => {
           stock: parseInt(product.stock) || 0,
           category: product.category,
           image: product.image,
+          images: product.images || [], // Support for multiple images
           views: 0,
         },
       ])
@@ -148,9 +149,29 @@ export const addProduct = async (product) => {
  */
 export const updateProduct = async (productId, updates) => {
   try {
+    // Clean up updates object to only include known columns
+    const allowedColumns = [
+      "name",
+      "description",
+      "price",
+      "discount",
+      "stock",
+      "category",
+      "image",
+      "images", // Attempting to support multiple images
+      "views"
+    ];
+    
+    const filteredUpdates = {};
+    for (const key of Object.keys(updates)) {
+      if (allowedColumns.includes(key)) {
+        filteredUpdates[key] = updates[key];
+      }
+    }
+
     const { data, error } = await supabase
       .from("products")
-      .update(updates)
+      .update(filteredUpdates)
       .eq("id", productId)
       .select()
       .single();

@@ -235,7 +235,7 @@ export const ShopProvider = ({ children }) => {
       );
       toast.success("Product updated successfully");
     } else {
-      toast.error("Failed to update product");
+      toast.error(`Failed to update product: ${res.message || "Unknown error"}`);
     }
   };
 
