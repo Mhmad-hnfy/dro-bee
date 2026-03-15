@@ -14,6 +14,7 @@ import ProductDetails from "./pages/ProductDetails";
 import SearchPage from "./pages/SearchPage";
 import CategoryPage from "./pages/CategoryPage";
 import ContactUs from "./pages/ContactUs";
+import PaymentCallback from "./pages/PaymentCallback";
 
 import { Toaster } from "sonner";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -42,6 +43,7 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/receipt" element={<OrderReceipt />} />
           <Route path="/contact" element={<ContactUs />} />
+          <Route path="/payment-callback" element={<PaymentCallback />} />
 
           {/* User Profile - Protected */}
           <Route

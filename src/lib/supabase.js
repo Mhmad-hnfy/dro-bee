@@ -613,6 +613,64 @@ export const clearCart = async (userId) => {
   }
 };
 
+// ==================== طرق الدفع والمحفظة ====================
+
+/**
+ * الحصول على طرق الدفع الخاصة بالمستخدم
+ */
+export const getUserPaymentMethods = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from("payment_methods")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error fetching payment methods:", error);
+    return { success: false, data: [] };
+  }
+};
+
+/**
+ * إضافة طريقة دفع جديدة
+ */
+export const addPaymentMethod = async (paymentData) => {
+  try {
+    const { data, error } = await supabase
+      .from("payment_methods")
+      .insert([paymentData])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error adding payment method:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
+ * حذف طريقة دفع
+ */
+export const deletePaymentMethod = async (methodId) => {
+  try {
+    const { error } = await supabase
+      .from("payment_methods")
+      .delete()
+      .eq("id", methodId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting payment method:", error);
+    return { success: false, message: error.message };
+  }
+};
+
 // ==================== الرسائل (تواصل معنا) ====================
 
 /**

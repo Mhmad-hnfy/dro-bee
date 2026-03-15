@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 function Checkout() {
-  const { cart, settings, createOrder, getDiscountedPrice, promoCodes, t } =
+  const { cart, settings, createOrder, getDiscountedPrice, promoCodes, paymentMethods, initiatePaymobPayment, t } =
     useShop();
   const navigate = useNavigate();
 
@@ -17,6 +17,7 @@ function Checkout() {
     phone2: "",
     address: "",
     paymentMethod: "cod", // Default to Cash on Delivery
+    savedMethodId: "", // Selected saved method
     walletType: "", // Added for Egyptian Wallets
     walletNumber: "", // Added for Egyptian Wallets
     cardDetails: {
@@ -72,30 +73,35 @@ function Checkout() {
     e.preventDefault();
 
     if (formData.paymentMethod === "card") {
-      if (
-        !formData.cardDetails.number ||
-        !formData.cardDetails.expiry ||
-        !formData.cardDetails.cvc ||
-        !formData.cardDetails.holderName
-      ) {
-        toast.error("Please fill in all card details.");
-        return;
+      if (!formData.savedMethodId) {
+        if (
+          !formData.cardDetails.number ||
+          !formData.cardDetails.expiry ||
+          !formData.cardDetails.cvc ||
+          !formData.cardDetails.holderName
+        ) {
+          toast.error("Please fill in all card details.");
+          return;
+        }
       }
     }
 
     if (formData.paymentMethod === "wallet") {
-      if (!formData.walletType || !formData.walletNumber) {
-        toast.error("Please select a wallet and provide your wallet number.");
-        return;
-      }
-      if (formData.walletNumber.length < 11) {
-        toast.error("Please enter a valid wallet number.");
-        return;
+      if (!formData.savedMethodId) {
+        if (!formData.walletType || !formData.walletNumber) {
+          toast.error("Please select a wallet and provide your wallet number.");
+          return;
+        }
+        if (formData.walletNumber.length < 11) {
+          toast.error("Please enter a valid wallet number.");
+          return;
+        }
       }
     }
 
-    setIsProcessing(true); // Guard against immediate redirect
-    // Create Order
+    setIsProcessing(true);
+
+    // Create Order (Cash on Delivery)
     const newOrder = await createOrder(formData, appliedPromo);
 
     toast.success("Order Placed Successfully!");
@@ -224,12 +230,9 @@ function Checkout() {
             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 ml-1">
               {t("checkout.paymentMethod")}
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {[
                 { id: "cod", label: t("checkout.cod"), icon: "🚚" },
-                { id: "card", label: t("checkout.card"), icon: "💳" },
-                { id: "wallet", label: t("checkout.wallet"), icon: "📱" },
-                { id: "paypal", label: "PayPal", icon: "🅿️" },
               ].map((method) => (
                 <label
                   key={method.id}
@@ -258,115 +261,7 @@ function Checkout() {
             </div>
           </div>
 
-          {/* Conditional Forms */}
-          {formData.paymentMethod === "card" && (
-            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-lg">
-                  💳
-                </div>
-                <h4 className="font-black text-xs uppercase tracking-widest text-gray-700">
-                  Card Details
-                </h4>
-              </div>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  name="holderName"
-                  placeholder="Cardholder Name"
-                  className="w-full bg-white border-2 border-transparent focus:border-yellow-400 rounded-xl px-4 py-3 text-sm font-bold transition-all"
-                  onChange={handleCardChange}
-                />
-                <input
-                  type="text"
-                  name="number"
-                  placeholder="Card Number"
-                  maxLength="19"
-                  className="w-full bg-white border-2 border-transparent focus:border-yellow-400 rounded-xl px-4 py-3 text-sm font-bold tracking-widest transition-all"
-                  onChange={handleCardChange}
-                />
-                <div className="flex gap-4">
-                  <input
-                    type="text"
-                    name="expiry"
-                    placeholder="MM/YY"
-                    className="w-1/2 bg-white border-2 border-transparent focus:border-yellow-400 rounded-xl px-4 py-3 text-sm font-bold transition-all text-center"
-                    onChange={handleCardChange}
-                  />
-                  <input
-                    type="password"
-                    name="cvc"
-                    placeholder="CVC"
-                    maxLength="4"
-                    className="w-1/2 bg-white border-2 border-transparent focus:border-yellow-400 rounded-xl px-4 py-3 text-sm font-bold transition-all text-center"
-                    onChange={handleCardChange}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {formData.paymentMethod === "wallet" && (
-            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-lg">
-                  📱
-                </div>
-                <h4 className="font-black text-xs uppercase tracking-widest text-gray-700">
-                  Digital Wallet
-                </h4>
-              </div>
-              <div className="space-y-4">
-                <select
-                  name="walletType"
-                  className="w-full bg-white border-2 border-transparent focus:border-yellow-400 rounded-xl px-4 py-3 text-sm font-bold transition-all"
-                  onChange={handleChange}
-                >
-                  <option value="">Select Wallet Type</option>
-                  <option value="vodafone">Vodafone Cash</option>
-                  <option value="orange">Orange Cash</option>
-                  <option value="etisalat">Etisalat Cash</option>
-                  <option value="instapay">InstaPay / WE</option>
-                </select>
-                <input
-                  type="tel"
-                  name="walletNumber"
-                  placeholder="Wallet Number (01xxxxxxxxx)"
-                  className="w-full bg-white border-2 border-transparent focus:border-yellow-400 rounded-xl px-4 py-3 text-sm font-bold transition-all"
-                  onChange={handleChange}
-                />
-                <p className="text-[10px] text-gray-400 font-bold uppercase leading-relaxed text-center italic">
-                  * Send the amount to our official number after placing the
-                  order for confirmation
-                </p>
-              </div>
-            </div>
-          )}
-
-          {formData.paymentMethod === "paypal" && (
-            <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-2xl text-white shadow-lg shadow-blue-200">
-                  🅿️
-                </div>
-                <div>
-                  <h4 className="font-black text-xs uppercase tracking-widest text-blue-900 mb-1">
-                    PayPal Checkout
-                  </h4>
-                  <p className="text-[10px] text-blue-500 font-bold uppercase italic">
-                    Fast and secure global payment
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  disabled
-                  className="w-full bg-[#0070ba] text-white py-3 rounded-full font-black text-sm uppercase opacity-50 cursor-not-allowed italic"
-                >
-                  Pay with PayPal
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="pt-6 border-t-2 border-dashed border-gray-100"></div>
 
           <button
             type="submit"

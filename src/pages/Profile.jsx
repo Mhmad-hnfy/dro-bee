@@ -4,8 +4,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 
 function Profile() {
-  const { currentUser, orders, logout, t } = useShop();
+  const { currentUser, orders, logout, paymentMethods, addPaymentMethod, removePaymentMethod, t } = useShop();
   const navigate = useNavigate();
+
+  const [isAddingMethod, setIsAddingMethod] = React.useState(false);
+  const [newMethod, setNewMethod] = React.useState({ type: "wallet", provider: "vodafone", identifier: "" });
 
   // Redirect if not logged in
   React.useEffect(() => {
@@ -27,6 +30,17 @@ function Profile() {
     logout();
     toast.success(t("nav.logout") + " " + t("nav.hi")); // Or a specific success message
     navigate("/");
+  };
+
+  const handleAddMethod = async (e) => {
+    e.preventDefault();
+    if (!newMethod.identifier) {
+      toast.error(t("profile.enterIdentifier") || "Please enter number/identifier");
+      return;
+    }
+    await addPaymentMethod(newMethod);
+    setIsAddingMethod(false);
+    setNewMethod({ type: "wallet", provider: "vodafone", identifier: "" });
   };
 
   return (
@@ -92,8 +106,108 @@ function Profile() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 mb-12">
         <div className="max-w-4xl mx-auto">
+          {/* Wallet Section */}
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
+                <span className="w-2 h-8 bg-black rounded-full"></span>
+                {t("profile.walletAndPayments") || "Wallet & Payment Methods"}
+              </h3>
+              <button
+                onClick={() => setIsAddingMethod(!isAddingMethod)}
+                className="px-4 py-2 bg-yellow-400 text-black text-xs font-black uppercase tracking-widest rounded-xl hover:bg-black hover:text-white transition-all shadow-md shadow-yellow-200"
+              >
+                {isAddingMethod ? t("common.cancel") || "Cancel" : t("profile.addNew") || "+ Add New"}
+              </button>
+            </div>
+
+            {isAddingMethod && (
+              <form onSubmit={handleAddMethod} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-6 animate-in fade-in slide-in-from-top-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Type</label>
+                    <select
+                      className="w-full bg-white border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 font-bold text-sm"
+                      value={newMethod.type}
+                      onChange={(e) => setNewMethod({ ...newMethod, type: e.target.value, provider: e.target.value === "wallet" ? "vodafone" : "visa" })}
+                    >
+                      <option value="wallet">Digital Wallet</option>
+                      <option value="card">Bank Card</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Provider</label>
+                    {newMethod.type === "wallet" ? (
+                      <select
+                        className="w-full bg-white border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 font-bold text-sm"
+                        value={newMethod.provider}
+                        onChange={(e) => setNewMethod({ ...newMethod, provider: e.target.value })}
+                      >
+                        <option value="vodafone">Vodafone Cash</option>
+                        <option value="orange">Orange Cash</option>
+                        <option value="etisalat">Etisalat Cash</option>
+                        <option value="instapay">InstaPay</option>
+                      </select>
+                    ) : (
+                      <select
+                        className="w-full bg-white border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 font-bold text-sm"
+                        value={newMethod.provider}
+                        onChange={(e) => setNewMethod({ ...newMethod, provider: e.target.value })}
+                      >
+                        <option value="visa">Visa</option>
+                        <option value="mastercard">Mastercard</option>
+                      </select>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Number / Last 4 Digits</label>
+                    <input
+                      type="text"
+                      className="w-full bg-white border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 font-bold text-sm"
+                      placeholder={newMethod.type === "wallet" ? "01xxxxxxxxx" : "xxxx"}
+                      value={newMethod.identifier}
+                      onChange={(e) => setNewMethod({ ...newMethod, identifier: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="w-full bg-black text-white py-3 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-gray-900 transition-colors">
+                  {t("profile.saveMethod") || "Save Payment Method"}
+                </button>
+              </form>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {paymentMethods.length > 0 ? (
+                paymentMethods.map((method) => (
+                  <div key={method.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl bg-gray-50/50 hover:bg-white hover:shadow-md transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-sm ${method.type === 'wallet' ? 'bg-black text-white' : 'bg-yellow-400 text-black'}`}>
+                        {method.type === 'wallet' ? '📱' : '💳'}
+                      </div>
+                      <div>
+                        <h4 className="font-black text-sm text-gray-900 uppercase tracking-widest">{method.provider}</h4>
+                        <p className="text-xs font-bold text-gray-400">{method.identifier}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removePaymentMethod(method.id)}
+                      className="text-gray-300 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50"
+                      title="Remove"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-1 md:col-span-2 text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                  <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t("profile.noPaymentMethods") || "No payment methods saved."}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
               <span className="w-2 h-8 bg-yellow-400 rounded-full"></span>

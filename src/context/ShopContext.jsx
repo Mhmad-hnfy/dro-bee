@@ -25,6 +25,7 @@ export const ShopProvider = ({ children }) => {
   const [promoCodes, setPromoCodes] = useState([]);
   const [settings, setSettings] = useState({ shippingCost: 10 });
   const [messages, setMessages] = useState([]); // <-- Added messages state
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem("language") || "en";
   });
@@ -103,6 +104,13 @@ export const ShopProvider = ({ children }) => {
   // Persist local states to LocalStorage
   useEffect(() => {
     localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    if (currentUser) {
+      supabase.getUserPaymentMethods(currentUser.id).then((res) => {
+        if (res.success) setPaymentMethods(res.data);
+      });
+    } else {
+      setPaymentMethods([]);
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -431,6 +439,120 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
+  const initiatePaymobPayment = async (formData, appliedPromo, methodType) => {
+    setIsLoading(true);
+    try {
+      const subtotal = cart.reduce(
+        (sum, item) => sum + getDiscountedPrice(item) * item.qty,
+        0,
+      );
+      const promoDiscount = appliedPromo ? (subtotal * appliedPromo.discount) / 100 : 0;
+      const finalTotal = subtotal - promoDiscount + parseFloat(settings.shippingCost);
+      const amountCents = Math.round(finalTotal * 100);
+
+      // 1. Authentication Request
+      const authRes = await fetch("https://accept.paymob.com/api/auth/tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api_key: import.meta.env.VITE_PAYMOB_API_KEY }),
+      });
+      const authData = await authRes.json();
+      const token = authData.token;
+
+      // 2. Order Registration Request
+      const orderRes = await fetch("https://accept.paymob.com/api/ecommerce/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth_token: token,
+          delivery_needed: "false",
+          amount_cents: amountCents.toString(),
+          currency: "EGP",
+          items: cart.map(item => ({
+            name: item.name,
+            amount_cents: Math.round(getDiscountedPrice(item) * 100).toString(),
+            description: item.category,
+            quantity: item.qty.toString()
+          }))
+        }),
+      });
+      const orderData = await orderRes.json();
+
+      // 3. Payment Key Request
+      const integrationId = methodType === "card" 
+        ? import.meta.env.VITE_PAYMOB_CARD_INTEGRATION_ID 
+        : import.meta.env.VITE_PAYMOB_WALLET_INTEGRATION_ID;
+
+      const keyRes = await fetch("https://accept.paymob.com/api/acceptance/payment_keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth_token: token,
+          amount_cents: amountCents.toString(),
+          expiration: 3600,
+          order_id: orderData.id.toString(),
+          billing_data: {
+            apartment: "NA",
+            email: currentUser?.email || formData.email || "guest@example.com",
+            floor: "NA",
+            first_name: formData.name.split(" ")[0] || "Guest",
+            street: formData.address,
+            building: "NA",
+            phone_number: formData.phone1,
+            shipping_method: "PKG",
+            postal_code: formData.postalCode || "11111",
+            city: formData.city || "Cairo",
+            country: "EGY",
+            last_name: formData.name.split(" ")[1] || "User",
+            state: "NA"
+          },
+          currency: "EGP",
+          integration_id: integrationId,
+          lock_order_when_paid: "false"
+        }),
+      });
+      const keyData = await keyRes.json();
+
+      // If wallet, we need an extra step for some integrations, 
+      // but usually redirecting to the URL or using the token in an iframe works.
+      // For Egyptian Wallets (Mobile Wallets):
+      if (methodType === "wallet") {
+        const walletRes = await fetch("https://accept.paymob.com/api/acceptance/payments/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            source: {
+              identifier: formData.walletNumber || formData.phone1 || "01000000000",
+              subtype: "WALLET"
+            },
+            payment_token: keyData.token
+          })
+        });
+        const walletData = await walletRes.json();
+        
+        if (walletData.redirect_url) {
+          window.location.href = walletData.redirect_url;
+        } else if (walletData.pending && walletData.data?.message) {
+          toast.info(walletData.data.message);
+        } else {
+          console.error("Wallet Payment Error:", walletData);
+          toast.error(walletData.detail || "Failed to initiate wallet payment. Please check your Integration ID.");
+        }
+      } else {
+        // Redirect to Card Iframe
+        window.location.href = `https://accept.paymob.com/api/acceptance/iframes/${import.meta.env.VITE_PAYMOB_IFRAME_ID}?payment_token=${keyData.token}`;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Paymob Error:", error);
+      toast.error("Payment initiation failed. Please check your credentials.");
+      return { success: false };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const deleteOrder = async (orderId) => {
     // Missing deleteOrder in supabase.js, but we can assume it will be added or use standard delete
     const res = await supabase.supabase
@@ -492,6 +614,33 @@ export const ShopProvider = ({ children }) => {
 
   const toggleLanguage = () =>
     setLanguage((prev) => (prev === "en" ? "ar" : "en"));
+
+  // Payment Methods Action Helpers
+  const addPaymentMethod = async (paymentData) => {
+    if (!currentUser) return;
+    const res = await supabase.addPaymentMethod({
+      ...paymentData,
+      user_id: currentUser.id,
+    });
+    if (res.success) {
+      setPaymentMethods((prev) => [res.data, ...prev]);
+      toast.success(t("profile.paymentMethodAdded") || "Payment method added");
+    } else {
+      toast.error(t("profile.paymentMethodError") || "Error adding method");
+    }
+    return res;
+  };
+
+  const removePaymentMethod = async (methodId) => {
+    const res = await supabase.deletePaymentMethod(methodId);
+    if (res.success) {
+      setPaymentMethods((prev) => prev.filter((m) => m.id !== methodId));
+      toast.success(t("profile.paymentMethodRemoved") || "Payment method removed");
+    } else {
+      toast.error(t("profile.paymentMethodError") || "Error removing method");
+    }
+    return res;
+  };
 
   // Contact Message Action Helpers
   const submitContactMessage = async (messageData) => {
@@ -564,6 +713,10 @@ export const ShopProvider = ({ children }) => {
         language,
         t,
         toggleLanguage,
+        paymentMethods,
+        addPaymentMethod,
+        removePaymentMethod,
+        initiatePaymobPayment,
       }}
     >
       {children}
